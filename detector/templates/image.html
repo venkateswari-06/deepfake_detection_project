@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Deepfake Detection</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+body{
+font-family:'Poppins',sans-serif;
+background:linear-gradient(135deg,#1c92d2,#f2fcfe);
+text-align:center;
+padding-top:40px;
+}
+
+.container{
+width:650px;
+margin:auto;
+background:white;
+padding:50px;
+border-radius:18px;
+box-shadow:0px 12px 35px rgba(0,0,0,0.25);
+}
+
+h1{
+font-size:32px;
+font-weight:700;
+margin-bottom:30px;
+color:#022639;
+letter-spacing:1px;
+}
+
+.drop{
+border:2px dashed #d699fa;
+padding:40px;
+border-radius:12px;
+cursor:pointer;
+display:block;
+margin-top:15px;
+margin-bottom:20px;
+font-size:18px;
+color:#555;
+transition:0.3s;
+}
+
+.drop:hover{
+border-color:#1c92d2;
+background:#f4faff;
+}
+
+input{
+display:none;
+}
+
+.preview img{
+max-width:100%;
+margin-top:15px;
+border-radius:10px;
+box-shadow:0px 4px 10px rgba(0,0,0,0.2);
+}
+
+button{
+margin-top:25px;
+padding:12px 30px;
+background:#1c92d2;
+color:white;
+border:none;
+border-radius:8px;
+font-size:18px;
+cursor:pointer;
+transition:0.3s;
+}
+
+button:hover{
+background:#156fa8;
+transform:scale(1.05);
+}
+
+.home-btn{
+background:#444;
+margin-left:10px;
+}
+
+.home-btn:hover{
+background:#222;
+}
+
+.result{
+margin-top:25px;
+font-size:28px;
+font-weight:700;
+letter-spacing:1px;
+}
+
+.real{
+color:#1fae4b;
+}
+
+.fake{
+color:#e63946;
+}
+
+.progress{
+width:100%;
+background:#ddd;
+border-radius:12px;
+margin-top:18px;
+overflow:hidden;
+}
+
+.bar{
+height:22px;
+border-radius:12px;
+width:0%;
+transition:width 1s;
+}
+
+.conf{
+margin-top:10px;
+font-size:18px;
+font-weight:600;
+}
+
+.image-section{
+display:flex;
+justify-content:center;
+gap:40px;
+margin-top:25px;
+}
+
+.image-section img{
+width:220px;
+border-radius:10px;
+box-shadow:0px 4px 10px rgba(0,0,0,0.2);
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Deepfake Detection System</h1>
+
+<form method="POST" enctype="multipart/form-data">
+
+{% csrf_token %}
+
+<label class="drop">
+Click Here to Upload
+<input type="file" name="image" id="fileInput" required>
+</label>
+
+<div class="preview" id="preview"></div>
+
+<button type="submit">Detect Image</button>
+
+<a href="/">
+<button type="button" class="home-btn">🏠 Back to Home</button>
+</a>
+
+</form>
+
+
+{% if image %}
+
+<div class="image-section">
+
+<div>
+<h3>Uploaded Image</h3>
+<img src="/media/{{image}}">
+</div>
+
+<div>
+<h3>Detected Face</h3>
+<img src="/media/{{face}}">
+</div>
+
+</div>
+
+{% endif %}
+
+
+{% if result %}
+
+<div class="result {% if result == 'REAL IMAGE' %}real{% else %}fake{% endif %}">
+{{result}}
+</div>
+
+<div class="conf">Confidence: {{confidence}}%</div>
+
+<div class="progress">
+<div class="bar" id="bar"></div>
+</div>
+
+<script>
+
+let confidence={{confidence}};
+let bar=document.getElementById("bar");
+
+bar.style.width=confidence+"%";
+
+if("{{result}}"=="REAL IMAGE"){
+bar.style.background="#1fae4b";
+}else{
+bar.style.background="#e63946";
+}
+
+</script>
+
+{% endif %}
+
+</div>
+
+
+<script>
+
+let fileInput=document.getElementById("fileInput");
+let preview=document.getElementById("preview");
+
+fileInput.addEventListener("change",function(){
+
+let file=this.files[0];
+
+if(file){
+
+let reader=new FileReader();
+
+reader.onload=function(e){
+preview.innerHTML='<img src="'+e.target.result+'">';
+}
+
+reader.readAsDataURL(file);
+
+}
+
+});
+
+</script>
+
+</body>
+</html>

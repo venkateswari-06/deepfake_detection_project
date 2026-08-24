@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Webcam Deepfake Detection</title>
+
+<style>
+
+body{
+font-family:Arial;
+text-align:center;
+background:linear-gradient(135deg,#1c92d2,#f2fcfe);
+padding-top:40px;
+}
+
+video{
+border-radius:10px;
+box-shadow:0 4px 15px rgba(0,0,0,0.3);
+}
+
+button{
+margin-top:20px;
+padding:10px 20px;
+font-size:18px;
+background:#1c92d2;
+color:white;
+border:none;
+border-radius:6px;
+cursor:pointer;
+}
+
+button:hover{
+background:#156fa8;
+}
+
+.result{
+margin-top:20px;
+font-size:26px;
+font-weight:bold;
+}
+
+.real{
+color:green;
+}
+
+.fake{
+color:red;
+}
+
+.home-btn{
+position:absolute;
+top:20px;
+right:30px;
+background:#444;
+padding:8px 18px;
+}
+
+.home-btn:hover{
+background:#222;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div>
+<a href="/">
+<button class="home-btn">🏠 Home</button>
+</a>
+</div>
+
+<h2>Live Webcam Deepfake Detection</h2>
+
+<video id="video" width="400" height="300" autoplay></video>
+
+<br>
+
+<button onclick="capture()">Capture & Detect</button>
+
+<canvas id="canvas" style="display:none"></canvas>
+
+<form id="form" method="POST">
+{% csrf_token %}
+<input type="hidden" name="image" id="imageInput">
+</form>
+
+{% if result %}
+
+<div class="result {% if result == 'REAL FACE' %}real{% else %}fake{% endif %}">
+{{result}}
+</div>
+
+<div>Confidence: {{confidence}}%</div>
+
+{% endif %}
+
+<script>
+
+let video = document.getElementById("video");
+
+navigator.mediaDevices.getUserMedia({video:true})
+.then(stream=>{
+video.srcObject = stream;
+});
+
+function capture(){
+
+let canvas=document.getElementById("canvas");
+let context=canvas.getContext("2d");
+
+canvas.width=video.videoWidth;
+canvas.height=video.videoHeight;
+
+context.drawImage(video,0,0);
+
+let image=canvas.toDataURL("image/jpeg");
+
+document.getElementById("imageInput").value=image;
+
+document.getElementById("form").submit();
+
+}
+
+</script>
+
+</body>
+</html>
